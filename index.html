@@ -155,7 +155,7 @@
         const chatLoading = document.getElementById('chat-loading');
 
         // --- CHAVE DA API ---
-        const apiKey = ""; 
+        const apiKey = "AIzaSyBBZe9Rr0U35u1wa7r8-gc3qi93IIL4lIU"; 
 
         // --- GERENCIAMENTO DO ESTOQUE (localStorage) ---
         function getWines() {
@@ -198,6 +198,10 @@
         
         // --- LÓGICA DA IA E INTERAÇÃO ---
         async function handleImageUpload(event) {
+            if (!apiKey || apiKey === "SUA_CHAVE_API_VAI_AQUI") {
+                showErrorModal("A chave de API não está configurada corretamente.");
+                return;
+            }
             const file = event.target.files[0];
             if (!file) return;
 
@@ -369,6 +373,10 @@
         }
 
         async function generateTechSheet(wineInfo) {
+            if (!apiKey || apiKey === "SUA_CHAVE_API_VAI_AQUI") {
+                showErrorModal("A chave de API não está configurada corretamente.");
+                return;
+            }
             showLoadingModal('Gerando ficha técnica...');
             
             const prompt = `Gere uma "ficha técnica" detalhada para o vinho "${wineInfo.wineName} ${wineInfo.year || ''}" da região "${wineInfo.region}" com uva "${wineInfo.grape}". Inclua os seguintes tópicos em português, usando emojis para ilustrar. Formate a resposta de forma clara e legível:
@@ -400,6 +408,10 @@
         }
         
         async function handleSommelierChat() {
+            if (!apiKey || apiKey === "SUA_CHAVE_API_VAI_AQUI") {
+                addChatMessage("A chave de API não está configurada corretamente.", 'ai');
+                return;
+            }
             const userMessage = chatInput.value.trim();
             if (!userMessage) return;
 
