@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adega Inteligente</title>
+    <!-- Tailwind CSS para um design moderno e responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts para uma tipografia elegante -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Fundo cinza escuro */
+            color: #f3f4f6; /* Texto claro */
+        }
+        .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Animação de carregamento */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #a855f7; /* Roxo */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="app" class="container mx-auto max-w-2xl p-4 min-h-screen">
+        <!-- Cabeçalho -->
+        <header class="text-center my-8">
+            <h1 class="font-serif text-4xl md:text-5xl text-white">Adega Inteligente</h1>
+            <p class="text-purple-400 mt-2">Seu sommelier pessoal</p>
+        </header>
+
+        <!-- Lista de Vinhos -->
+        <main id="wine-list-container" class="bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-2">Meu Estoque</h2>
+            <div id="wine-list" class="space-y-3">
+                <!-- Vinhos serão inseridos aqui pelo JavaScript -->
+            </div>
+            <p id="empty-message" class="text-gray-400 text-center py-8 hidden">Sua adega está vazia. Adicione um vinho para começar!</p>
+        </main>
+
+        <!-- Botão Flutuante para Adicionar Vinho -->
+        <div class="fixed bottom-6 right-6">
+            <label for="wine-photo-input" class="bg-purple-600 hover:bg-purple-700 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </label>
+            <input type="file" id="wine-photo-input" accept="image/*" class="hidden">
+        </div>
+    </div>
+
+    <!-- Modal para exibir informações da IA e interações -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div id="modal-content" class="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative transform transition-all scale-95 opacity-0">
+            <!-- Conteúdo do modal será inserido aqui -->
+        </div>
+    </div>
+    
+    <!-- Modal de Carregamento -->
+    <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center z-50 hidden">
+        <div class="loader"></div>
+        <p class="text-white mt-4 text-lg">Analisando o rótulo...</p>
+    </div>
+
+    <script>
+        // --- ELEMENTOS DO DOM ---
+        const wineList = document.getElementById('wine-list');
+        const emptyMessage = document.getElementById('empty-message');
+        const photoInput = document.getElementById('wine-photo-input');
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        const loadingModal = document.getElementById('loading-modal');
+
+        // --- CHAVE DA API ---
+        // A chave da API do Gemini será injetada automaticamente pelo ambiente.
+        // Não é necessário preencher manualmente.
+        const apiKey = ""; 
+
+        // --- GERENCIAMENTO DO ESTOQUE (localStorage) ---
+        
+        /**
+         * Busca os vinhos salvos no armazenamento local do navegador.
+         * @returns {Array} Um array de objetos de vinho.
+         */
+        function getWines() {
+            return JSON.parse(localStorage.getItem('myWines')) || [];
+        }
+
+        /**
+         * Salva a lista de vinhos no armazenamento local.
+         * @param {Array} wines - O array de vinhos para salvar.
+         */
+        function saveWines(wines) {
+            localStorage.setItem('myWines', JSON.stringify(wines));
+        }
+
+        // --- RENDERIZAÇÃO DA INTERFACE ---
+
+        /**
+         * Renderiza a lista de vinhos na tela.
+         */
+        function renderWineList() {
+            const wines = getWines();
+            wineList.innerHTML = ''; // Limpa a lista atual
+
+            if (wines.length === 0) {
+                emptyMessage.classList.remove('hidden');
+            } else {
+                emptyMessage.classList.add('hidden');
+                wines.forEach((wine, index) => {
+                    const wineElement = document.createElement('div');
+                    wineElement.className = 'bg-gray-700 p-4 rounded-lg flex justify-between items-center';
+                    wineElement.innerHTML = `
+                        <div>
+                            <p class="font-bold text-lg text-white">${wine.wineName} ${wine.year ? `(${wine.year})` : ''}</p>
+                            <p class="text-sm text-gray-300">${wine.grape} - ${wine.region}</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-purple-500 text-white text-sm font-bold px-3 py-1 rounded-full">${wine.quantity}x</span>
+                             <button onclick="drinkWine(${index})" class="bg-green-600 hover:bg-green-700 text-white font-bold p-2 rounded-full transform hover:scale-110 transition-transform" title="Beber uma garrafa">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cup-straw" viewBox="0 0 16 16"><path d="m6.5 11.882 2.415-2.416.707.707L7.207 12.59a.5.5 0 0 1-.707 0l-1.5-1.5.707-.707L6.5 11.882z"/><path d="M11 1a1 1 0 0 1 1 1v.217A2.5 2.5 0 0 0 9.5 1h-3A2.5 2.5 0 0 0 4 3.217V2a1 1 0 0 1 1-1h6zM9.5 2a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 1 0-3h3zM4 4.217A3.5 3.5 0 0 1 7.5 1h1A3.5 3.5 0 0 1 12 4.217v5.583A3.5 3.5 0 0 1 8.5 14h-1A3.5 3.5 0 0 1 4 9.799V4.217zM3 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H3z"/></svg>
+                            </button>
+                        </div>
+                    `;
+                    wineList.appendChild(wineElement);
+                });
+            }
+        }
+        
+        // --- LÓGICA DA IA E INTERAÇÃO ---
+
+        /**
+         * Lida com o upload da imagem do rótulo.
+         * @param {Event} event - O evento de mudança do input de arquivo.
+         */
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            loadingModal.classList.remove('hidden');
+
+            try {
+                const base64Image = await toBase64(file);
+                const wineInfo = await getWineInfoFromAI(base64Image);
+                
+                if (wineInfo) {
+                    showAIModal(wineInfo);
+                } else {
+                    showErrorModal('Não foi possível analisar o rótulo. Tente uma foto com melhor iluminação e foco.');
+                }
+            } catch (error) {
+                console.error("Erro no processo de upload:", error);
+                showErrorModal('Ocorreu um erro. Verifique sua conexão e tente novamente.');
+            } finally {
+                loadingModal.classList.add('hidden');
+                photoInput.value = ''; // Reseta o input para permitir a mesma foto novamente
+            }
+        }
+
+        /**
+         * Converte um arquivo de imagem para o formato Base64.
+         * @param {File} file - O arquivo de imagem.
+         * @returns {Promise<string>} Uma promise que resolve com a string Base64.
+         */
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]); // Remove o prefixo 'data:image/...'
+            reader.onerror = error => reject(error);
+        });
+
+        /**
+         * Envia a imagem para a API do Gemini e retorna as informações do vinho.
+         * @param {string} base64ImageData - A imagem em formato Base64.
+         * @returns {Promise<Object|null>} Um objeto com as informações do vinho ou nulo em caso de erro.
+         */
+        async function getWineInfoFromAI(base64ImageData) {
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const prompt = `Você é a "Adega Inteligente", uma IA sommelier especialista. Analise a imagem do rótulo de vinho anexa. Com base na imagem, extraia as seguintes informações e retorne-as ESTRITAMENTE em formato JSON, sem nenhum texto ou formatação adicional fora do objeto JSON.
+            - wineName: O nome completo do vinho.
+            - grape: A uva principal (ex: "Cabernet Sauvignon"). Se não estiver explícito, infira com base na região e tipo.
+            - region: A região de origem (ex: "Bordeaux, França").
+            - year: O ano da safra, se visível. Caso contrário, retorne null.
+            - description: Uma breve e interessante descrição sobre o vinho ou seu tipo.
+            - foodPairings: Um array com 5 sugestões de harmonização.`;
+
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: prompt },
+                        { inlineData: { mimeType: "image/jpeg", data: base64ImageData } }
+                    ]
+                }],
+                generationConfig: {
+                  responseMimeType: "application/json",
+                }
+            };
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    console.error("Erro na API:", response.status, await response.text());
+                    return null;
+                }
+
+                const result = await response.json();
+                // A API com responseMimeType: "application/json" retorna o JSON diretamente no campo de texto
+                const textResponse = result.candidates[0].content.parts[0].text;
+                return JSON.parse(textResponse);
+
+            } catch (error) {
+                console.error("Erro ao chamar a API do Gemini:", error);
+                return null;
+            }
+        }
+        
+        /**
+         * Exibe o modal com as informações do vinho e as opções de interação.
+         * @param {Object} wineInfo - O objeto com as informações do vinho.
+         */
+        function showAIModal(wineInfo) {
+            const wines = getWines();
+            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            const isInStock = existingWineIndex !== -1;
+
+            let buttonsHtml = '';
+            if (isInStock) {
+                buttonsHtml = `
+                    <button onclick='drinkWine(${existingWineIndex})' class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105">Beber 1 Garrafa</button>
+                    <button onclick='addWine(${JSON.stringify(wineInfo)}, true)' class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105">Adicionar +1</button>
+                `;
+            } else {
+                buttonsHtml = `
+                    <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105">Adicionar ao Estoque</button>
+                `;
+            }
+
+            modalContent.innerHTML = `
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
+                <p class="text-purple-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
+                
+                <div class="bg-gray-700 p-4 rounded-lg mb-4">
+                    <h3 class="font-bold text-lg mb-2 text-white">Sobre este vinho</h3>
+                    <p class="text-gray-300">${wineInfo.description}</p>
+                </div>
+
+                <div class="bg-gray-700 p-4 rounded-lg mb-6">
+                    <h3 class="font-bold text-lg mb-2 text-white">Harmonização Sugerida</h3>
+                    <ul class="list-disc list-inside text-gray-300 space-y-1">
+                        ${wineInfo.foodPairings.map(p => `<li>${p}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-3">
+                    ${buttonsHtml}
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        /**
+         * Exibe um modal de erro genérico.
+         * @param {string} message - A mensagem de erro a ser exibida.
+         */
+        function showErrorModal(message) {
+             modalContent.innerHTML = `
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <h2 class="font-serif text-3xl text-red-400 mb-2">Erro</h2>
+                <p class="text-gray-300">${message}</p>
+             `;
+             modal.classList.remove('hidden');
+             setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        /**
+         * Fecha o modal principal.
+         */
+        function closeModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        // --- FUNÇÕES DE MANIPULAÇÃO DO ESTOQUE ---
+
+        /**
+         * Adiciona um vinho ao estoque ou incrementa sua quantidade.
+         * @param {Object} wineInfo - O objeto com as informações do vinho.
+         * @param {boolean} [increment=false] - Se deve apenas incrementar a quantidade.
+         */
+        function addWine(wineInfo, increment = false) {
+            const wines = getWines();
+            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+
+            if (existingWineIndex !== -1) {
+                wines[existingWineIndex].quantity++;
+            } else {
+                wines.push({ ...wineInfo, quantity: 1 });
+            }
+
+            saveWines(wines);
+            renderWineList();
+            closeModal();
+        }
+
+        /**
+         * Consome uma garrafa de vinho, diminuindo a quantidade ou removendo-o.
+         * @param {number} index - O índice do vinho no array do estoque.
+         */
+        function drinkWine(index) {
+            const wines = getWines();
+            if (wines[index]) {
+                wines[index].quantity--;
+                if (wines[index].quantity <= 0) {
+                    wines.splice(index, 1); // Remove o vinho se a quantidade for zero
+                }
+                saveWines(wines);
+                renderWineList();
+            }
+            closeModal(); // Fecha o modal caso esteja aberto
+        }
+
+        // --- INICIALIZAÇÃO ---
+        
+        // Adiciona o listener para o input de foto
+        photoInput.addEventListener('change', handleImageUpload);
+        
+        // Adiciona um listener para fechar o modal clicando fora do conteúdo
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+        // Renderiza a lista inicial ao carregar a página
+        document.addEventListener('DOMContentLoaded', renderWineList);
+
+    </script>
+</body>
+</html>
