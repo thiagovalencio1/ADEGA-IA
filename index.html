@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Adega Inteligente Eid Valencio</title>
 
-    <!-- INÍCIO DA ALTERAÇÃO: Ícones para a tela de início e navegador -->
+    <!-- Ícones para a tela de início e navegador -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/881337/f5f5f4?text=A&font=playfairdisplay">
     <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/881337/f5f5f4?text=A&font=playfairdisplay">
     <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16/881337/f5f5f4?text=A&font=playfairdisplay">
-    <!-- FIM DA ALTERAÇÃO -->
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -144,10 +143,13 @@
         <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-red-900 hover:bg-red-800 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
         </button>
-        <label for="wine-photo-input" title="Adicionar Vinho por Foto" class="bg-red-800 hover:bg-red-700 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
+        <!-- ALTERAÇÃO: O botão de adicionar agora é um <button>, não um <label> -->
+        <button id="add-wine-action-btn" title="Adicionar Vinho por Foto" class="bg-red-800 hover:bg-red-700 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-        </label>
-        <input type="file" id="wine-photo-input" accept="image/*" class="hidden">
+        </button>
+        <!-- ALTERAÇÃO: Inputs de arquivo agora estão escondidos e separados -->
+        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden">
+        <input type="file" id="gallery-input" accept="image/*" class="hidden">
     </div>
 
     <!-- Modais -->
@@ -301,13 +303,15 @@
         // --- ELEMENTOS DO DOM ---
         const wineList = document.getElementById('wine-list');
         const emptyMessage = document.getElementById('empty-message');
-        const photoInput = document.getElementById('wine-photo-input');
+        const cameraInput = document.getElementById('camera-input');
+        const galleryInput = document.getElementById('gallery-input');
         const modalBackdrop = document.getElementById('modal-backdrop');
         const modalContainer = document.getElementById('modal-container');
         const modalContent = document.getElementById('modal-content');
         const loadingModal = document.getElementById('loading-modal');
         const loadingText = document.getElementById('loading-text');
         const askSommelierBtn = document.getElementById('ask-sommelier-btn');
+        const addWineActionBtn = document.getElementById('add-wine-action-btn');
         const apiMonitor = document.getElementById('api-monitor');
 
         // --- ESTADO GLOBAL DA APLICAÇÃO ---
@@ -405,7 +409,9 @@
                 showErrorModal(`Ocorreu um erro ao contatar a IA. Detalhes: ${error.message}`);
             } finally {
                 hideLoadingModal();
-                photoInput.value = '';
+                // Limpa o valor dos inputs para permitir a seleção do mesmo arquivo novamente
+                cameraInput.value = '';
+                galleryInput.value = '';
             }
         }
 
@@ -467,6 +473,34 @@
         
         function showLoadingModal(text) { loadingText.textContent = text; loadingModal.classList.remove('hidden'); }
         function hideLoadingModal() { loadingModal.classList.add('hidden'); }
+
+        function showImageSourceModal() {
+            const btnClass = "font-bold py-4 px-4 rounded-lg w-full transition-transform transform hover:scale-105 text-lg flex items-center justify-center gap-3";
+            modalContent.innerHTML = `
+                <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                <h2 class="font-serif text-3xl text-white mb-6 text-center">Adicionar Vinho</h2>
+                <div class="flex flex-col gap-4">
+                    <button id="open-camera-btn" class="bg-red-800 hover:bg-red-700 text-white ${btnClass}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                        Tirar Foto com a Câmera
+                    </button>
+                    <button id="open-gallery-btn" class="bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Escolher da Galeria
+                    </button>
+                </div>
+            `;
+            openModal();
+            modalContent.querySelector('.close-modal-btn').onclick = closeModal;
+            modalContent.querySelector('#open-camera-btn').onclick = () => {
+                cameraInput.click();
+                closeModal();
+            };
+            modalContent.querySelector('#open-gallery-btn').onclick = () => {
+                galleryInput.click();
+                closeModal();
+            };
+        }
 
         function showScannedWineModal(wineInfo) {
             const newWineFingerprint = createWineFingerprint(wineInfo);
@@ -609,7 +643,9 @@
         apiMonitor.addEventListener('click', () => {
             apiMonitor.classList.toggle('is-expanded');
         });
-        photoInput.addEventListener('change', handleImageUpload);
+        addWineActionBtn.addEventListener('click', showImageSourceModal);
+        cameraInput.addEventListener('change', handleImageUpload);
+        galleryInput.addEventListener('change', handleImageUpload);
         askSommelierBtn.addEventListener('click', openChatModal);
 
     </script>
