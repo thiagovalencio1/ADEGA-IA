@@ -14,7 +14,7 @@
         body { 
             font-family: 'Inter', sans-serif; 
             color: #f3f4f6;
-            background-color: #030712;
+            background-color: #0c0a09; /* Fundo stone-950 */
         }
         .font-serif { font-family: 'Playfair Display', serif; }
 
@@ -24,17 +24,17 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1557636443-7f3116a32d13?q=80&w=2070&auto=format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1584916201218-6e3407138915?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
-            filter: blur(5px) brightness(0.25);
+            filter: blur(4px) brightness(0.3);
             z-index: -1;
         }
 
         /* Efeito de Vidro Fosco */
         .glass-panel {
-            background-color: rgba(17, 24, 39, 0.7);
-            backdrop-filter: blur(12px);
+            background-color: rgba(12, 10, 9, 0.7); /* stone-950 com 70% de opacidade */
+            backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -47,8 +47,8 @@
         /* Scrollbar customizada */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.6); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(159, 18, 57, 0.6); border-radius: 10px; } /* rose-800 */
+        ::-webkit-scrollbar-thumb:hover { background: rgba(159, 18, 57, 0.8); }
     </style>
 </head>
 <body class="antialiased">
@@ -60,14 +60,14 @@
         </div>
         <div class="flex flex-col">
             <span id="api-status-text" class="font-bold text-gray-300">Ocioso</span>
-            <span id="api-key-identifier" class="font-mono text-indigo-400 text-[10px]">Chave #0</span>
+            <span id="api-key-identifier" class="font-mono text-amber-400 text-[10px]">Chave #0</span>
         </div>
     </div>
 
     <div id="app" class="container mx-auto max-w-3xl p-4 min-h-screen pb-28">
         <header class="text-center my-10">
-            <h1 class="font-serif text-5xl md:text-6xl text-white tracking-tight" style="text-shadow: 0 0 15px rgba(233, 213, 255, 0.3);">Adega Inteligente</h1>
-            <p class="text-indigo-300 mt-3 text-lg">Seu sommelier pessoal, potencializado por IA.</p>
+            <h1 class="font-serif text-5xl md:text-6xl text-white tracking-tight" style="text-shadow: 0 0 20px rgba(250, 204, 21, 0.3);">Adega Inteligente</h1>
+            <p class="text-amber-200 mt-3 text-lg">Seu sommelier pessoal, potencializado por IA.</p>
         </header>
 
         <main id="wine-list-container" class="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl">
@@ -78,10 +78,10 @@
 
         <!-- Botões de Ação Flutuantes -->
         <div class="fixed bottom-6 right-6 z-20 flex flex-col gap-4">
-            <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-gradient-to-br from-blue-600 to-teal-600 hover:from-blue-500 hover:to-teal-500 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
+            <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-gradient-to-br from-rose-700 to-amber-600 hover:from-rose-600 hover:to-amber-500 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
             </button>
-            <label for="wine-photo-input" title="Adicionar Vinho por Foto" class="bg-gradient-to-br from-indigo-600 to-purple-700 hover:from-indigo-500 hover:to-purple-600 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
+            <label for="wine-photo-input" title="Adicionar Vinho por Foto" class="bg-gradient-to-br from-rose-900 to-amber-700 hover:from-rose-800 hover:to-amber-600 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
             </label>
             <input type="file" id="wine-photo-input" accept="image/*" class="hidden">
@@ -94,363 +94,406 @@
         <div id="modal-content" class="glass-panel rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative modal-scale-enter-from"></div>
     </div>
     <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-[60] hidden">
-        <div class="w-16 h-16 border-4 border-t-transparent border-indigo-400 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-t-transparent border-amber-400 rounded-full animate-spin"></div>
         <p id="loading-text" class="text-white mt-4 text-lg">Analisando o rótulo...</p>
     </div>
 
-    <script>
-    // ===================================================================================
-    // MÓDULO DE GERENCIAMENTO DA API (CARROSSEL COM MONITOR UNIFICADO)
-    // ===================================================================================
-    class ApiCarousel {
-        constructor(keys, monitorElement) {
-            if (!keys || keys.length === 0) throw new Error("O carrossel precisa de ao menos uma chave de API.");
-            this.keys = keys;
-            this.currentIndex = 0;
-            this.monitor = monitorElement;
-            this.indicator = this.monitor.querySelector('#api-status-indicator');
-            this.statusText = this.monitor.querySelector('#api-status-text');
-            this.keyIdentifier = this.monitor.querySelector('#api-key-identifier');
-            this.setMonitorStatus('idle');
-        }
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Importações do Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        setMonitorStatus(status, message = '') {
-            this.indicator.innerHTML = ''; // Limpa o indicador
-            let lightClass = '';
-            let statusMessage = '';
+        // ===================================================================================
+        // SUA CONFIGURAÇÃO PESSOAL DO FIREBASE (valencio-app)
+        // ===================================================================================
+        const firebaseConfig = {
+          apiKey: "AIzaSyCAOHJ5Dj4TjZLg8wonEVMcCOvFSn0F8a8",
+          authDomain: "valencio-app.firebaseapp.com",
+          projectId: "valencio-app",
+          storageBucket: "valencio-app.firebasestorage.app",
+          messagingSenderId: "889574596911",
+          appId: "1:889574596911:web:e786e2638ba706c4ad81da"
+        };
+        // ===================================================================================
 
-            switch (status) {
-                case 'processing':
-                    this.indicator.innerHTML = `<div class="w-4 h-4 border-2 border-t-transparent border-blue-400 rounded-full animate-spin"></div>`;
-                    statusMessage = message || 'Analisando...';
-                    break;
-                case 'rotated':
-                    lightClass = 'bg-yellow-500';
-                    statusMessage = 'Chave Rotacionada';
-                    break;
-                case 'failed':
-                    lightClass = 'bg-red-500';
-                    statusMessage = 'Falha na API';
-                    break;
-                case 'idle':
-                default:
-                    lightClass = 'bg-green-500';
-                    statusMessage = 'Ocioso';
-                    break;
+        // Inicializa o Firebase e o Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        // Define a referência para o documento único que guardará a lista de vinhos
+        const adegaDocRef = doc(db, "adegas", "adega-compartilhada");
+
+        // ===================================================================================
+        // MÓDULO DE GERENCIAMENTO DA API (CARROSSEL COM MONITOR UNIFICADO)
+        // ===================================================================================
+        class ApiCarousel {
+            constructor(keys, monitorElement) {
+                if (!keys || keys.length === 0) throw new Error("O carrossel precisa de ao menos uma chave de API.");
+                this.keys = keys;
+                this.currentIndex = 0;
+                this.monitor = monitorElement;
+                this.indicator = this.monitor.querySelector('#api-status-indicator');
+                this.statusText = this.monitor.querySelector('#api-status-text');
+                this.keyIdentifier = this.monitor.querySelector('#api-key-identifier');
+                this.setMonitorStatus('idle');
             }
-            if (lightClass) {
-                this.indicator.innerHTML = `<div class="w-3 h-3 rounded-full ${lightClass}"></div>`;
-            }
-            this.statusText.textContent = statusMessage;
-            this.keyIdentifier.textContent = `Chave #${this.currentIndex}`;
-        }
 
-        rotateToNextKey() {
-            this.currentIndex = (this.currentIndex + 1) % this.keys.length;
-            this.setMonitorStatus('rotated');
-            console.warn(`Limite da chave anterior atingido. Rotacionando para a chave de índice ${this.currentIndex}.`);
-        }
+            setMonitorStatus(status, message = '') {
+                this.indicator.innerHTML = ''; // Limpa o indicador
+                let lightClass = '';
+                let statusMessage = '';
 
-        async makeRequest(payload) {
-            const maxRetries = this.keys.length;
-            this.setMonitorStatus('processing');
-            for (let attempt = 0; attempt < maxRetries; attempt++) {
-                const currentKey = this.keys[this.currentIndex];
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${currentKey}`;
-                
-                try {
-                    const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (response.status === 429) {
-                        this.rotateToNextKey();
-                        continue;
-                    }
-                    if (!response.ok) throw new Error(`Erro na API: ${response.status}`);
-                    
-                    this.setMonitorStatus('idle');
-                    return await response.json();
-                } catch (error) {
-                    console.error(`Erro na tentativa ${attempt + 1} com a chave ${this.currentIndex}:`, error);
-                    if (attempt < maxRetries - 1) this.rotateToNextKey();
+                switch (status) {
+                    case 'processing':
+                        this.indicator.innerHTML = `<div class="w-4 h-4 border-2 border-t-transparent border-amber-400 rounded-full animate-spin"></div>`;
+                        statusMessage = message || 'Analisando...';
+                        break;
+                    case 'rotated':
+                        lightClass = 'bg-yellow-500';
+                        statusMessage = 'Chave Rotacionada';
+                        break;
+                    case 'failed':
+                        lightClass = 'bg-red-500';
+                        statusMessage = 'Falha na API';
+                        break;
+                    case 'idle':
+                    default:
+                        lightClass = 'bg-green-500';
+                        statusMessage = 'Ocioso';
+                        break;
                 }
+                if (lightClass) {
+                    this.indicator.innerHTML = `<div class="w-3 h-3 rounded-full ${lightClass}"></div>`;
+                }
+                this.statusText.textContent = statusMessage;
+                this.keyIdentifier.textContent = `Chave #${this.currentIndex}`;
             }
-            this.setMonitorStatus('failed');
-            throw new Error("Todas as chaves de API falharam ou estão indisponíveis.");
+
+            rotateToNextKey() {
+                this.currentIndex = (this.currentIndex + 1) % this.keys.length;
+                this.setMonitorStatus('rotated');
+                console.warn(`Limite da chave anterior atingido. Rotacionando para a chave de índice ${this.currentIndex}.`);
+            }
+
+            async makeRequest(payload) {
+                const maxRetries = this.keys.length;
+                this.setMonitorStatus('processing');
+                for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    const currentKey = this.keys[this.currentIndex];
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${currentKey}`;
+                    
+                    try {
+                        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        if (response.status === 429) {
+                            this.rotateToNextKey();
+                            continue;
+                        }
+                        if (!response.ok) throw new Error(`Erro na API: ${response.status}`);
+                        
+                        this.setMonitorStatus('idle');
+                        return await response.json();
+                    } catch (error) {
+                        console.error(`Erro na tentativa ${attempt + 1} com a chave ${this.currentIndex}:`, error);
+                        if (attempt < maxRetries - 1) this.rotateToNextKey();
+                    }
+                }
+                this.setMonitorStatus('failed');
+                throw new Error("Todas as chaves de API falharam ou estão indisponíveis.");
+            }
         }
-    }
 
-    // ===================================================================================
-    // INICIALIZAÇÃO E CONFIGURAÇÃO
-    // ===================================================================================
-    const apiKeys = [
-        "AIzaSyBBZe9Rr0U35u1wa7r8-gc3qi93IIL4lIU",
-        "AIzaSyCwa8cFsFo1z84GhJXuGuF3B1BY6iYYPh0",
-        "AIzaSyCwfc8bJqC6nQa7rtZQ_zMD0BMDnmx7Rh4",
-        "AIzaSyDX6QhUPD3U5IAkxeZqchOECY0kZPBBZSg"
-    ];
-    const apiCarousel = new ApiCarousel(apiKeys, document.getElementById('api-monitor'));
+        // ===================================================================================
+        // INICIALIZAÇÃO E CONFIGURAÇÃO
+        // ===================================================================================
+        const apiKeys = [
+            "AIzaSyBBZe9Rr0U35u1wa7r8-gc3qi93IIL4lIU",
+            "AIzaSyCwa8cFsFo1z84GhJXuGuF3B1BY6iYYPh0",
+            "AIzaSyCwfc8bJqC6nQa7rtZQ_zMD0BMDnmx7Rh4",
+            "AIzaSyDX6QhUPD3U5IAkxeZqchOECY0kZPBBZSg"
+        ];
+        const apiCarousel = new ApiCarousel(apiKeys, document.getElementById('api-monitor'));
 
-    // --- ELEMENTOS DO DOM ---
-    const wineList = document.getElementById('wine-list');
-    const emptyMessage = document.getElementById('empty-message');
-    const photoInput = document.getElementById('wine-photo-input');
-    const modalBackdrop = document.getElementById('modal-backdrop');
-    const modalContainer = document.getElementById('modal-container');
-    const modalContent = document.getElementById('modal-content');
-    const loadingModal = document.getElementById('loading-modal');
-    const loadingText = document.getElementById('loading-text');
-    const askSommelierBtn = document.getElementById('ask-sommelier-btn');
+        // --- ELEMENTOS DO DOM ---
+        const wineList = document.getElementById('wine-list');
+        const emptyMessage = document.getElementById('empty-message');
+        const photoInput = document.getElementById('wine-photo-input');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContainer = document.getElementById('modal-container');
+        const modalContent = document.getElementById('modal-content');
+        const loadingModal = document.getElementById('loading-modal');
+        const loadingText = document.getElementById('loading-text');
+        const askSommelierBtn = document.getElementById('ask-sommelier-btn');
 
-    // --- GERENCIAMENTO DE DADOS (sessionStorage) ---
-    // Usando sessionStorage para que os dados persistam apenas na sessão atual do navegador.
-    const getWines = () => JSON.parse(sessionStorage.getItem('myWines_v4')) || [];
-    const saveWines = (wines) => sessionStorage.setItem('myWines_v4', JSON.stringify(wines));
+        // --- ESTADO GLOBAL DA APLICAÇÃO ---
+        let currentWines = [];
 
-    // ===================================================================================
-    // FUNÇÃO CENTRAL DE CHAMADA DA IA
-    // ===================================================================================
-    async function callGenerativeAI(prompt, base64ImageData = null) {
-        const parts = [{ text: prompt }];
-        if (base64ImageData) {
-            parts.push({ inlineData: { mimeType: "image/jpeg", data: base64ImageData } });
-        }
-        const payload = { contents: [{ parts }] };
-        
-        const result = await apiCarousel.makeRequest(payload);
-        
-        if (result.candidates && result.candidates[0].content.parts.length > 0) {
-            let textResponse = result.candidates[0].content.parts[0].text;
-            const jsonMatch = textResponse.match(/```json\s*([\s\S]*?)\s*```/);
-            return jsonMatch ? jsonMatch[1] : textResponse;
-        }
-        throw new Error("A IA não retornou uma resposta válida.");
-    }
+        // ===================================================================================
+        // LÓGICA DE DADOS COM FIREBASE
+        // ===================================================================================
 
-    // ===================================================================================
-    // LÓGICA DA APLICAÇÃO (UI, Eventos, etc.)
-    // ===================================================================================
-
-    function renderWineList() {
-        const wines = getWines();
-        wineList.innerHTML = '';
-        emptyMessage.classList.toggle('hidden', wines.length > 0);
-
-        wines.sort((a, b) => a.wineName.localeCompare(b.wineName)).forEach(wine => {
-            const wineElement = document.createElement('div');
-            wineElement.className = 'bg-gray-900 bg-opacity-60 p-4 rounded-xl flex justify-between items-center transition-all duration-300 hover:bg-opacity-80 hover:scale-[1.02] cursor-pointer shadow-md border border-transparent hover:border-indigo-500';
-            wineElement.onclick = () => showStockWineDetails(wine);
-            wineElement.innerHTML = `
-                <div>
-                    <p class="font-bold text-lg text-white">${wine.wineName} ${wine.year ? `<span class="text-sm text-gray-400">(${wine.year})</span>` : ''}</p>
-                    <p class="text-sm text-indigo-300">${wine.grape} - ${wine.region}</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="bg-indigo-500 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full">${wine.quantity}</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                </div>
-            `;
-            wineList.appendChild(wineElement);
-        });
-    }
-
-    async function handleImageUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        showLoadingModal('Analisando o rótulo...');
-        try {
-            const base64Image = await toBase64(file);
-            const prompt = `Você é a "Adega Inteligente", uma IA sommelier. Analise a imagem do rótulo de vinho. Extraia as informações e retorne ESTRITAMENTE em formato JSON. O objeto deve ter: "wineName" (string), "grape" (string), "region" (string), "year" (número ou null), "description" (string, max 250 caracteres), "foodPairings" (array de 5 strings).`;
-            const jsonResponse = await callGenerativeAI(prompt, base64Image);
-            const wineInfo = JSON.parse(jsonResponse);
-
-            if (wineInfo && wineInfo.wineName) {
-                showScannedWineModal(wineInfo);
+        // Escuta por mudanças no documento da adega em tempo real
+        onSnapshot(adegaDocRef, (doc) => {
+            console.log("Dados recebidos do Firebase: ", doc.data());
+            // Se o documento existir e tiver a propriedade 'estoque', atualiza o estado local
+            if (doc.exists() && doc.data().estoque) {
+                currentWines = doc.data().estoque;
             } else {
-                showErrorModal('Não foi possível analisar o rótulo. Tente uma foto com melhor iluminação e foco.');
+                // Se o documento não existir, o estoque está vazio
+                currentWines = [];
             }
-        } catch (error) {
-            console.error("Erro no processo de upload:", error);
-            showErrorModal(`Ocorreu um erro ao contatar a IA. Detalhes: ${error.message}`);
-        } finally {
-            hideLoadingModal();
-            photoInput.value = '';
-        }
-    }
+            renderWineList(currentWines);
+        });
 
-    const toBase64 = file => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-    });
-
-    function addWine(wineInfo) {
-        const wines = getWines();
-        const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
-        if (existingWineIndex > -1) {
-            wines[existingWineIndex].quantity++;
-        } else {
-            wines.push({ ...wineInfo, quantity: 1, id: Date.now() });
-        }
-        saveWines(wines);
-        renderWineList();
-        closeModal();
-    }
-
-    function drinkWine(wineInfo) {
-        let wines = getWines();
-        const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
-        if (existingWineIndex > -1) {
-            wines[existingWineIndex].quantity--;
-            if (wines[existingWineIndex].quantity <= 0) {
-                wines = wines.filter((_, index) => index !== existingWineIndex);
+        async function saveWinesToFirebase(wines) {
+            try {
+                // Salva o objeto inteiro contendo o array 'estoque' no documento
+                await setDoc(adegaDocRef, { estoque: wines });
+            } catch (error) {
+                console.error("Erro ao salvar vinhos no Firebase: ", error);
+                showErrorModal("Não foi possível sincronizar com a adega na nuvem.");
             }
-            saveWines(wines);
-            renderWineList();
         }
-        closeModal();
-    }
 
-    function openModal() {
-        modalBackdrop.classList.remove('hidden', 'modal-scale-enter-from');
-        modalContainer.classList.remove('hidden');
-        modalContent.classList.remove('modal-scale-enter-from');
-        modalBackdrop.classList.add('modal-scale-enter-to');
-        modalContent.classList.add('modal-scale-enter-to');
-    }
+        // ===================================================================================
+        // FUNÇÃO CENTRAL DE CHAMADA DA IA
+        // ===================================================================================
+        async function callGenerativeAI(prompt, base64ImageData = null) {
+            const parts = [{ text: prompt }];
+            if (base64ImageData) {
+                parts.push({ inlineData: { mimeType: "image/jpeg", data: base64ImageData } });
+            }
+            const payload = { contents: [{ parts }] };
+            const result = await apiCarousel.makeRequest(payload);
+            if (result.candidates && result.candidates[0].content.parts.length > 0) {
+                let textResponse = result.candidates[0].content.parts[0].text;
+                const jsonMatch = textResponse.match(/```json\s*([\s\S]*?)\s*```/);
+                return jsonMatch ? jsonMatch[1] : textResponse;
+            }
+            throw new Error("A IA não retornou uma resposta válida.");
+        }
 
-    function closeModal() {
-        modalBackdrop.classList.remove('modal-scale-enter-to');
-        modalContent.classList.remove('modal-scale-enter-to');
-        modalBackdrop.classList.add('modal-scale-leave-to');
-        modalContent.classList.add('modal-scale-leave-to');
-        setTimeout(() => {
-            modalBackdrop.classList.add('hidden');
-            modalContainer.classList.add('hidden');
-        }, 200);
-    }
-    
-    function showLoadingModal(text) { loadingText.textContent = text; loadingModal.classList.remove('hidden'); }
-    function hideLoadingModal() { loadingModal.classList.add('hidden'); }
+        // ===================================================================================
+        // LÓGICA DA APLICAÇÃO (UI, Eventos, etc.)
+        // ===================================================================================
 
-    function showScannedWineModal(wineInfo) {
-        const wines = getWines();
-        const existingWine = wines.find(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
-        const isInStock = !!existingWine;
-        const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
+        function renderWineList(wines) {
+            wineList.innerHTML = '';
+            emptyMessage.classList.toggle('hidden', wines.length > 0);
+
+            wines.sort((a, b) => a.wineName.localeCompare(b.wineName)).forEach(wine => {
+                const wineElement = document.createElement('div');
+                wineElement.className = 'bg-stone-900 bg-opacity-60 p-4 rounded-xl flex justify-between items-center transition-all duration-300 hover:bg-opacity-80 hover:scale-[1.02] cursor-pointer shadow-md border-l-4 border-amber-400';
+                wineElement.onclick = () => showStockWineDetails(wine);
+                wineElement.innerHTML = `
+                    <div>
+                        <p class="font-bold text-lg text-white">${wine.wineName} ${wine.year ? `<span class="text-sm text-gray-400">(${wine.year})</span>` : ''}</p>
+                        <p class="text-sm text-amber-300">${wine.grape} - ${wine.region}</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="bg-rose-800 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full">${wine.quantity}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                    </div>
+                `;
+                wineList.appendChild(wineElement);
+            });
+        }
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            showLoadingModal('Analisando o rótulo...');
+            try {
+                const base64Image = await toBase64(file);
+                const prompt = `Você é a "Adega Inteligente", uma IA sommelier. Analise a imagem do rótulo de vinho. Extraia as informações e retorne ESTRITAMENTE em formato JSON. O objeto deve ter: "wineName" (string), "grape" (string), "region" (string), "year" (número ou null), "description" (string, max 250 caracteres), "foodPairings" (array de 5 strings).`;
+                const jsonResponse = await callGenerativeAI(prompt, base64Image);
+                const wineInfo = JSON.parse(jsonResponse);
+                if (wineInfo && wineInfo.wineName) {
+                    showScannedWineModal(wineInfo);
+                } else {
+                    showErrorModal('Não foi possível analisar o rótulo. Tente uma foto com melhor iluminação e foco.');
+                }
+            } catch (error) {
+                console.error("Erro no processo de upload:", error);
+                showErrorModal(`Ocorreu um erro ao contatar a IA. Detalhes: ${error.message}`);
+            } finally {
+                hideLoadingModal();
+                photoInput.value = '';
+            }
+        }
+
+        const toBase64 = file => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+        });
+
+        function addWine(wineInfo) {
+            const wines = [...currentWines]; // Cria uma cópia para não modificar o estado diretamente
+            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            if (existingWineIndex > -1) {
+                wines[existingWineIndex].quantity++;
+            } else {
+                wines.push({ ...wineInfo, quantity: 1, id: Date.now() });
+            }
+            saveWinesToFirebase(wines); // Salva a lista atualizada no Firebase
+            closeModal();
+        }
+
+        function drinkWine(wineInfo) {
+            let wines = [...currentWines];
+            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            if (existingWineIndex > -1) {
+                wines[existingWineIndex].quantity--;
+                if (wines[existingWineIndex].quantity <= 0) {
+                    wines = wines.filter((_, index) => index !== existingWineIndex);
+                }
+                saveWinesToFirebase(wines);
+            }
+            closeModal();
+        }
+
+        function openModal() {
+            modalBackdrop.classList.remove('hidden', 'modal-scale-enter-from');
+            modalContainer.classList.remove('hidden');
+            modalContent.classList.remove('modal-scale-enter-from');
+            modalBackdrop.classList.add('modal-scale-enter-to');
+            modalContent.classList.add('modal-scale-enter-to');
+        }
+
+        function closeModal() {
+            modalBackdrop.classList.remove('modal-scale-enter-to');
+            modalContent.classList.remove('modal-scale-enter-to');
+            modalBackdrop.classList.add('modal-scale-leave-to');
+            modalContent.classList.add('modal-scale-leave-to');
+            setTimeout(() => {
+                modalBackdrop.classList.add('hidden');
+                modalContainer.classList.add('hidden');
+            }, 200);
+        }
         
-        modalContent.innerHTML = `
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
-            <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
-            <p class="text-indigo-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
-            <div class="space-y-4">
-                <div class="bg-gray-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Sobre este vinho</h3><p class="text-gray-300">${wineInfo.description}</p></div>
-                <div class="bg-gray-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Harmonização Sugerida</h3><ul class="list-disc list-inside text-gray-300 space-y-1">${(wineInfo.foodPairings || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
-            </div>
-            <div class="mt-6 flex flex-col gap-3">
-                <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-indigo-600 hover:bg-indigo-700 text-white ${btnClass}">
-                    ${isInStock ? 'Adicionar +1 Garrafa' : 'Adicionar ao Estoque'}
-                </button>
-                ${isInStock ? `<button onclick='drinkWine(${JSON.stringify(wineInfo)})' class="bg-green-600 hover:bg-green-700 text-white ${btnClass}">Beber 1 Garrafa</button>` : ''}
-            </div>`;
-        openModal();
-    }
+        function showLoadingModal(text) { loadingText.textContent = text; loadingModal.classList.remove('hidden'); }
+        function hideLoadingModal() { loadingModal.classList.add('hidden'); }
 
-    function showStockWineDetails(wineInfo) {
-        const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
-        modalContent.innerHTML = `
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
-            <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
-            <p class="text-indigo-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
-            <p class="text-gray-300 mb-6 text-center bg-gray-900 bg-opacity-50 p-3 rounded-lg">Você tem <strong>${wineInfo.quantity}</strong> garrafa(s) em estoque.</p>
-            <div class="flex flex-col gap-3">
-                <button onclick='generateTechSheet(${JSON.stringify(wineInfo)})' class="bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">✨ Gerar Ficha Técnica</button>
-                <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-blue-600 hover:bg-blue-700 text-white ${btnClass}">Adicionar +1 Garrafa</button>
-                <button onclick='drinkWine(${JSON.stringify(wineInfo)})' class="bg-green-600 hover:bg-green-700 text-white ${btnClass}">Beber 1 Garrafa</button>
-            </div>`;
-        openModal();
-    }
-
-    function showErrorModal(message) {
-        modalContent.innerHTML = `
-            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
-            <h2 class="font-serif text-3xl text-red-400 mb-2">Ocorreu um Erro</h2>
-            <p class="text-gray-300">${message}</p>`;
-        openModal();
-    }
-
-    async function generateTechSheet(wineInfo) {
-        showLoadingModal('Gerando ficha técnica...');
-        try {
-            const prompt = `Gere uma "ficha técnica" detalhada para o vinho "${wineInfo.wineName} ${wineInfo.year || ''}" da região "${wineInfo.region}" com uva "${wineInfo.grape}". Formate com emojis. Inclua: 🌡️ Temperatura Ideal, ⏳ Potencial de Guarda, 📝 Nota de Prova (visual, olfativo, gustativo), 🧐 Curiosidade, 🌟 Nota Estimada (0-100).`;
-            const techSheetText = await callGenerativeAI(prompt);
+        function showScannedWineModal(wineInfo) {
+            const existingWine = currentWines.find(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            const isInStock = !!existingWine;
+            const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
+            
             modalContent.innerHTML = `
                 <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
-                <h2 class="font-serif text-3xl text-white mb-4">✨ Ficha Técnica</h2>
-                <div class="text-gray-300 space-y-3 whitespace-pre-wrap">${techSheetText.replace(/\n/g, '<br>')}</div>`;
-        } catch (error) {
-            console.error("Erro ao gerar ficha:", error);
-            showErrorModal(`Ocorreu um erro ao contatar a IA: ${error.message}`);
-        } finally {
-            hideLoadingModal();
+                <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
+                <p class="text-amber-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
+                <div class="space-y-4">
+                    <div class="bg-stone-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Sobre este vinho</h3><p class="text-gray-300">${wineInfo.description}</p></div>
+                    <div class="bg-stone-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Harmonização Sugerida</h3><ul class="list-disc list-inside text-gray-300 space-y-1">${(wineInfo.foodPairings || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
+                </div>
+                <div class="mt-6 flex flex-col gap-3">
+                    <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-rose-800 hover:bg-rose-700 text-white ${btnClass}">
+                        ${isInStock ? 'Adicionar +1 Garrafa' : 'Adicionar ao Estoque'}
+                    </button>
+                    ${isInStock ? `<button onclick='drinkWine(${JSON.stringify(wineInfo)})' class="bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>` : ''}
+                </div>`;
+            openModal();
         }
-    }
 
-    // --- Lógica do Chat ---
-    function openChatModal() {
-        const chatHistory = [{ role: 'ai', text: 'Olá! Sou seu sommelier virtual. Como posso ajudar hoje? Pergunte sobre harmonizações, uvas ou peça uma recomendação!' }];
-        modalContent.innerHTML = `
-            <div class="flex justify-between items-center pb-3 border-b border-gray-700">
-                <h2 class="font-serif text-2xl text-white">✨ Converse com o Sommelier</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white">&times;</button>
-            </div>
-            <div id="chat-messages" class="flex-1 py-4 space-y-4 overflow-y-auto flex flex-col h-80 my-4">
-                ${chatHistory.map(msg => `<div class="chat-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}">${msg.text}</div>`).join('')}
-            </div>
-            <div class="pt-3 border-t border-gray-700">
-                <form id="chat-form" class="flex gap-2">
-                    <input type="text" id="chat-input" class="flex-1 bg-gray-700 border border-gray-600 rounded-full px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Pergunte sobre vinhos...">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold p-3 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg></button>
-                </form>
-            </div>`;
-        openModal();
-        
-        const chatForm = document.getElementById('chat-form');
-        chatForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const chatInput = document.getElementById('chat-input');
-            const userMessage = chatInput.value.trim();
-            if (!userMessage) return;
+        function showStockWineDetails(wineInfo) {
+            const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
+            modalContent.innerHTML = `
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+                <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
+                <p class="text-amber-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
+                <p class="text-gray-300 mb-6 text-center bg-stone-900 bg-opacity-50 p-3 rounded-lg">Você tem <strong>${wineInfo.quantity}</strong> garrafa(s) em estoque.</p>
+                <div class="flex flex-col gap-3">
+                    <button onclick='generateTechSheet(${JSON.stringify(wineInfo)})' class="bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">✨ Gerar Ficha Técnica</button>
+                    <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-blue-600 hover:bg-blue-700 text-white ${btnClass}">Adicionar +1 Garrafa</button>
+                    <button onclick='drinkWine(${JSON.stringify(wineInfo)})' class="bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>
+                </div>`;
+            openModal();
+        }
 
-            addChatMessage(userMessage, 'user');
-            chatHistory.push({ role: 'user', text: userMessage });
-            chatInput.value = '';
-            
+        function showErrorModal(message) {
+            modalContent.innerHTML = `
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+                <h2 class="font-serif text-3xl text-red-400 mb-2">Ocorreu um Erro</h2>
+                <p class="text-gray-300">${message}</p>`;
+            openModal();
+        }
+
+        async function generateTechSheet(wineInfo) {
+            showLoadingModal('Gerando ficha técnica...');
             try {
-                const stock = getWines().map(w => `${w.quantity}x ${w.wineName} ${w.year}`).join(', ');
-                const prompt = `Contexto: O usuário possui os seguintes vinhos em estoque: [${stock || 'Nenhum'}]. Pergunta do usuário: "${userMessage}". Responda como um sommelier amigável e prestativo. Seja conciso.`;
-                const aiResponse = await callGenerativeAI(prompt);
-                addChatMessage(aiResponse, 'ai');
-                chatHistory.push({ role: 'ai', text: aiResponse });
+                const prompt = `Gere uma "ficha técnica" detalhada para o vinho "${wineInfo.wineName} ${wineInfo.year || ''}" da região "${wineInfo.region}" com uva "${wineInfo.grape}". Formate com emojis. Inclua: 🌡️ Temperatura Ideal, ⏳ Potencial de Guarda, 📝 Nota de Prova (visual, olfativo, gustativo), 🧐 Curiosidade, 🌟 Nota Estimada (0-100).`;
+                const techSheetText = await callGenerativeAI(prompt);
+                modalContent.innerHTML = `
+                    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
+                    <h2 class="font-serif text-3xl text-white mb-4">✨ Ficha Técnica</h2>
+                    <div class="text-gray-300 space-y-3 whitespace-pre-wrap">${techSheetText.replace(/\n/g, '<br>')}</div>`;
             } catch (error) {
-                addChatMessage(`Desculpe, estou com problemas para me conectar. ${error.message}`, 'ai');
+                console.error("Erro ao gerar ficha:", error);
+                showErrorModal(`Ocorreu um erro ao contatar a IA: ${error.message}`);
+            } finally {
+                hideLoadingModal();
             }
-        };
-    }
+        }
 
-    function addChatMessage(text, role) {
-        const chatMessages = document.getElementById('chat-messages');
-        const messageEl = document.createElement('div');
-        messageEl.className = `chat-bubble ${role === 'user' ? 'user-bubble' : 'ai-bubble'}`;
-        messageEl.textContent = text;
-        chatMessages.appendChild(messageEl);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
+        function openChatModal() {
+            const chatHistory = [{ role: 'ai', text: 'Olá! Sou seu sommelier virtual. Como posso ajudar hoje? Pergunte sobre harmonizações, uvas ou peça uma recomendação!' }];
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center pb-3 border-b border-gray-700">
+                    <h2 class="font-serif text-2xl text-white">✨ Converse com o Sommelier</h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div id="chat-messages" class="flex-1 py-4 space-y-4 overflow-y-auto flex flex-col h-80 my-4">
+                    ${chatHistory.map(msg => `<div class="chat-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}">${msg.text}</div>`).join('')}
+                </div>
+                <div class="pt-3 border-t border-gray-700">
+                    <form id="chat-form" class="flex gap-2">
+                        <input type="text" id="chat-input" class="flex-1 bg-stone-800 border border-gray-600 rounded-full px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pergunte sobre vinhos...">
+                        <button type="submit" class="bg-rose-800 hover:bg-rose-700 text-white font-bold p-3 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg></button>
+                    </form>
+                </div>`;
+            openModal();
+            
+            const chatForm = document.getElementById('chat-form');
+            chatForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const chatInput = document.getElementById('chat-input');
+                const userMessage = chatInput.value.trim();
+                if (!userMessage) return;
+                addChatMessage(userMessage, 'user');
+                chatInput.value = '';
+                try {
+                    const stock = currentWines.map(w => `${w.quantity}x ${w.wineName} ${w.year}`).join(', ');
+                    const prompt = `Contexto: O usuário possui os seguintes vinhos em estoque: [${stock || 'Nenhum'}]. Pergunta do usuário: "${userMessage}". Responda como um sommelier amigável e prestativo. Seja conciso.`;
+                    const aiResponse = await callGenerativeAI(prompt);
+                    addChatMessage(aiResponse, 'ai');
+                } catch (error) {
+                    addChatMessage(`Desculpe, estou com problemas para me conectar. ${error.message}`, 'ai');
+                }
+            };
+        }
 
-    // --- EVENT LISTENERS ---
-    photoInput.addEventListener('change', handleImageUpload);
-    askSommelierBtn.addEventListener('click', openChatModal);
-    document.addEventListener('DOMContentLoaded', renderWineList);
+        function addChatMessage(text, role) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageEl = document.createElement('div');
+            const bubbleClass = role === 'user' ? 'bg-gradient-to-br from-rose-700 to-amber-600 self-end' : 'bg-stone-700 self-start';
+            messageEl.className = `chat-bubble rounded-xl max-w-[85%] p-3 text-white ${bubbleClass}`;
+            messageEl.textContent = text;
+            chatMessages.appendChild(messageEl);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // --- EVENT LISTENERS ---
+        photoInput.addEventListener('change', handleImageUpload);
+        askSommelierBtn.addEventListener('click', openChatModal);
+        
+        // Atribuição de funções ao escopo global para que os botões nos modais funcionem
+        window.addWine = addWine;
+        window.drinkWine = drinkWine;
+        window.generateTechSheet = generateTechSheet;
+        window.closeModal = closeModal;
+
     </script>
 </body>
 </html>
