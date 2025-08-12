@@ -3,37 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adega Inteligente</title>
+    <title>Adega Inteligente Eid Valencio</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            height: 100%;
+        }
         body { 
             font-family: 'Inter', sans-serif; 
-            color: #f3f4f6;
-            background-color: #0c0a09; /* Fundo stone-950 */
+            color: #f5f5f4; /* stone-100 */
+            background-color: #1c1917; /* stone-900 */
         }
         .font-serif { font-family: 'Playfair Display', serif; }
+        .font-cursive { font-family: 'Dancing Script', cursive; }
 
-        /* Fundo de Adega Atmosférico */
+        /* Fundo de Adega Rústico */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1584916201218-6e3407138915?q=80&w=1974&auto=format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1598494834123-a256900bde35?q=80&w=1974&auto-format&fit=crop');
             background-size: cover;
             background-position: center;
-            filter: blur(4px) brightness(0.3);
+            filter: blur(4px) brightness(0.4);
             z-index: -1;
         }
 
         /* Efeito de Vidro Fosco */
         .glass-panel {
-            background-color: rgba(12, 10, 9, 0.7); /* stone-950 com 70% de opacidade */
+            background-color: rgba(28, 25, 23, 0.75); /* stone-900 com 75% de opacidade */
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -47,45 +51,101 @@
         /* Scrollbar customizada */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(159, 18, 57, 0.6); border-radius: 10px; } /* rose-800 */
-        ::-webkit-scrollbar-thumb:hover { background: rgba(159, 18, 57, 0.8); }
+        ::-webkit-scrollbar-thumb { background: rgba(127, 29, 29, 0.6); border-radius: 10px; } /* red-800 */
+        ::-webkit-scrollbar-thumb:hover { background: rgba(127, 29, 29, 0.8); }
+
+        /* Estilos do Monitor de API Interativo */
+        #api-monitor {
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+        }
+        #api-monitor:not(.is-expanded) {
+            width: 64px; /* 16rem */
+            height: 64px; /* 16rem */
+            border-radius: 9999px; /* rounded-full */
+            padding: 0;
+        }
+        #api-monitor.is-expanded {
+            width: 192px; /* w-48 */
+            height: auto;
+            border-radius: 0.75rem; /* rounded-xl */
+        }
+        .monitor-content {
+            transition: opacity 0.3s ease-in-out;
+        }
+        #api-monitor:not(.is-expanded) .expanded-view {
+            opacity: 0;
+            max-height: 0;
+            visibility: hidden;
+        }
+        #api-monitor.is-expanded .expanded-view {
+            opacity: 1;
+            max-height: 500px; /* Altura suficiente para o conteúdo */
+            visibility: visible;
+        }
+        #api-monitor:not(.is-expanded) .minimized-view {
+            opacity: 1;
+            visibility: visible;
+        }
+        #api-monitor.is-expanded .minimized-view {
+            opacity: 0;
+            max-height: 0;
+            visibility: hidden;
+        }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Monitor de Status Unificado -->
-    <div id="api-monitor" class="fixed bottom-6 left-6 z-30 glass-panel p-3 rounded-xl shadow-lg text-xs flex items-center gap-3">
-        <div id="api-status-indicator" class="w-4 h-4 flex items-center justify-center">
-            <!-- O spinner ou a luz aparecerá aqui -->
+    <!-- Monitor de Status Interativo -->
+    <div id="api-monitor" class="fixed bottom-6 left-6 z-30 glass-panel shadow-lg">
+        <!-- Visão Minimizada (Dial) -->
+        <div class="minimized-view absolute inset-0 flex items-center justify-center">
+            <div id="minimized-status-light" class="w-6 h-6 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
+                <!-- Spinner aparecerá aqui -->
+            </div>
         </div>
-        <div class="flex flex-col">
-            <span id="api-status-text" class="font-bold text-gray-300">Ocioso</span>
-            <span id="api-key-identifier" class="font-mono text-amber-400 text-[10px]">Chave #0</span>
+        <!-- Visão Expandida (Painel) -->
+        <div class="expanded-view p-3 text-xs">
+            <h3 class="font-bold text-gray-300 text-center border-b border-gray-700 pb-1 mb-2">Monitor do Carrossel</h3>
+            <div id="api-key-list" class="space-y-1.5">
+                <!-- A lista de chaves será gerada aqui pelo JS -->
+            </div>
         </div>
     </div>
 
-    <div id="app" class="container mx-auto max-w-3xl p-4 min-h-screen pb-28">
-        <header class="text-center my-10">
-            <h1 class="font-serif text-5xl md:text-6xl text-white tracking-tight" style="text-shadow: 0 0 20px rgba(250, 204, 21, 0.3);">Adega Inteligente</h1>
-            <p class="text-amber-200 mt-3 text-lg">Seu sommelier pessoal, potencializado por IA.</p>
+    <!-- Container Principal com Flexbox -->
+    <div id="app" class="container mx-auto max-w-3xl p-4 flex flex-col min-h-screen">
+        <header class="text-center my-10 flex-shrink-0">
+            <h1 class="font-serif text-5xl md:text-6xl text-white tracking-tight" style="text-shadow: 0 0 20px rgba(220, 38, 38, 0.3);">Adega Inteligente</h1>
+            <p class="text-red-200 mt-3 text-lg">Eid Valencio</p>
         </header>
 
-        <main id="wine-list-container" class="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl">
+        <!-- Conteúdo Principal que cresce para preencher o espaço -->
+        <main id="wine-list-container" class="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl flex-grow mb-8">
             <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-3 text-white">Meu Estoque de Vinhos</h2>
             <div id="wine-list" class="space-y-4"></div>
             <p id="empty-message" class="text-gray-400 text-center py-10 hidden">Sua adega está vazia. Adicione um vinho para começar!</p>
         </main>
 
-        <!-- Botões de Ação Flutuantes -->
-        <div class="fixed bottom-6 right-6 z-20 flex flex-col gap-4">
-            <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-gradient-to-br from-rose-700 to-amber-600 hover:from-rose-600 hover:to-amber-500 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-            </button>
-            <label for="wine-photo-input" title="Adicionar Vinho por Foto" class="bg-gradient-to-br from-rose-900 to-amber-700 hover:from-rose-800 hover:to-amber-600 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-            </label>
-            <input type="file" id="wine-photo-input" accept="image/*" class="hidden">
-        </div>
+        <!-- Assinatura do Projeto no Rodapé -->
+        <footer class="text-center mt-auto py-6 text-gray-400 flex-shrink-0">
+            <p class="font-cursive text-3xl text-red-200">Thiago Ventura Valencio</p>
+            <p class="text-sm -mt-2">Projeto/Desenvolvimento e teimosa</p>
+            <div class="mt-4 text-xs text-gray-500">
+                <p>Codificação: Gemini / ChatGPT / Qwen</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Botões de Ação Flutuantes -->
+    <div class="fixed bottom-6 right-6 z-20 flex flex-col gap-4">
+        <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-red-900 hover:bg-red-800 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+        </button>
+        <label for="wine-photo-input" title="Adicionar Vinho por Foto" class="bg-red-800 hover:bg-red-700 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        </label>
+        <input type="file" id="wine-photo-input" accept="image/*" class="hidden">
     </div>
 
     <!-- Modais -->
@@ -94,7 +154,7 @@
         <div id="modal-content" class="glass-panel rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 relative modal-scale-enter-from"></div>
     </div>
     <div id="loading-modal" class="fixed inset-0 bg-black bg-opacity-75 flex flex-col items-center justify-center z-[60] hidden">
-        <div class="w-16 h-16 border-4 border-t-transparent border-amber-400 rounded-full animate-spin"></div>
+        <div class="w-16 h-16 border-4 border-t-transparent border-red-400 rounded-full animate-spin"></div>
         <p id="loading-text" class="text-white mt-4 text-lg">Analisando o rótulo...</p>
     </div>
 
@@ -132,53 +192,74 @@
                 this.keys = keys;
                 this.currentIndex = 0;
                 this.monitor = monitorElement;
-                this.indicator = this.monitor.querySelector('#api-status-indicator');
-                this.statusText = this.monitor.querySelector('#api-status-text');
-                this.keyIdentifier = this.monitor.querySelector('#api-key-identifier');
-                this.setMonitorStatus('idle');
+                this.keyMonitors = [];
+                this.minimizedLight = document.getElementById('minimized-status-light');
+
+                const apiKeyList = this.monitor.querySelector('#api-key-list');
+                apiKeyList.innerHTML = '';
+                this.keys.forEach((key, index) => {
+                    const monitorElement = document.createElement('div');
+                    monitorElement.className = 'flex items-center justify-between text-[10px]';
+                    monitorElement.innerHTML = `
+                        <span class="font-mono text-gray-400">Chave #${index}</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="status-text font-medium"></span>
+                            <div class="status-light w-2.5 h-2.5 rounded-full"></div>
+                        </div>
+                    `;
+                    apiKeyList.appendChild(monitorElement);
+                    this.keyMonitors.push(monitorElement);
+                });
+                this.updateMonitorDisplay('idle');
             }
 
-            setMonitorStatus(status, message = '') {
-                this.indicator.innerHTML = ''; // Limpa o indicador
-                let lightClass = '';
-                let statusMessage = '';
+            updateMonitorDisplay(status) {
+                // Atualiza a visão expandida
+                this.keyMonitors.forEach((monitor, index) => {
+                    const text = monitor.querySelector('.status-text');
+                    const light = monitor.querySelector('.status-light');
+                    
+                    light.innerHTML = '';
+                    light.className = 'status-light w-2.5 h-2.5 rounded-full';
 
-                switch (status) {
-                    case 'processing':
-                        this.indicator.innerHTML = `<div class="w-4 h-4 border-2 border-t-transparent border-amber-400 rounded-full animate-spin"></div>`;
-                        statusMessage = message || 'Analisando...';
-                        break;
-                    case 'rotated':
-                        lightClass = 'bg-yellow-500';
-                        statusMessage = 'Chave Rotacionada';
-                        break;
-                    case 'failed':
-                        lightClass = 'bg-red-500';
-                        statusMessage = 'Falha na API';
-                        break;
-                    case 'idle':
-                    default:
-                        lightClass = 'bg-green-500';
-                        statusMessage = 'Ocioso';
-                        break;
+                    if (index === this.currentIndex) {
+                        if (status === 'processing') {
+                            text.textContent = 'ATIVA';
+                            text.className = 'status-text font-medium text-amber-400';
+                            light.innerHTML = `<div class="w-2.5 h-2.5 border-2 border-t-transparent border-amber-400 rounded-full animate-spin"></div>`;
+                        } else {
+                            text.textContent = 'ATIVA';
+                            text.className = 'status-text font-medium text-green-400';
+                            light.classList.add('bg-green-500');
+                        }
+                    } else {
+                        text.textContent = 'STANDBY';
+                        text.className = 'status-text font-medium text-gray-500';
+                        light.classList.add('bg-gray-600');
+                    }
+                });
+
+                // Atualiza a visão minimizada
+                this.minimizedLight.innerHTML = '';
+                this.minimizedLight.className = 'w-6 h-6 rounded-full transition-colors duration-500 flex items-center justify-center';
+                if (status === 'processing') {
+                    this.minimizedLight.classList.add('bg-amber-500');
+                    this.minimizedLight.innerHTML = `<div class="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>`;
+                } else {
+                    this.minimizedLight.classList.add('bg-green-500');
                 }
-                if (lightClass) {
-                    this.indicator.innerHTML = `<div class="w-3 h-3 rounded-full ${lightClass}"></div>`;
-                }
-                this.statusText.textContent = statusMessage;
-                this.keyIdentifier.textContent = `Chave #${this.currentIndex}`;
             }
 
             rotateToNextKey() {
                 this.currentIndex = (this.currentIndex + 1) % this.keys.length;
-                this.setMonitorStatus('rotated');
+                this.updateMonitorDisplay('idle');
                 console.warn(`Limite da chave anterior atingido. Rotacionando para a chave de índice ${this.currentIndex}.`);
             }
 
             async makeRequest(payload) {
                 const maxRetries = this.keys.length;
-                this.setMonitorStatus('processing');
                 for (let attempt = 0; attempt < maxRetries; attempt++) {
+                    this.updateMonitorDisplay('processing');
                     const currentKey = this.keys[this.currentIndex];
                     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${currentKey}`;
                     
@@ -190,14 +271,14 @@
                         }
                         if (!response.ok) throw new Error(`Erro na API: ${response.status}`);
                         
-                        this.setMonitorStatus('idle');
+                        this.updateMonitorDisplay('idle');
                         return await response.json();
                     } catch (error) {
                         console.error(`Erro na tentativa ${attempt + 1} com a chave ${this.currentIndex}:`, error);
                         if (attempt < maxRetries - 1) this.rotateToNextKey();
                     }
                 }
-                this.setMonitorStatus('failed');
+                this.updateMonitorDisplay('idle');
                 throw new Error("Todas as chaves de API falharam ou estão indisponíveis.");
             }
         }
@@ -223,6 +304,7 @@
         const loadingModal = document.getElementById('loading-modal');
         const loadingText = document.getElementById('loading-text');
         const askSommelierBtn = document.getElementById('ask-sommelier-btn');
+        const apiMonitor = document.getElementById('api-monitor');
 
         // --- ESTADO GLOBAL DA APLICAÇÃO ---
         let currentWines = [];
@@ -231,14 +313,10 @@
         // LÓGICA DE DADOS COM FIREBASE
         // ===================================================================================
 
-        // Escuta por mudanças no documento da adega em tempo real
         onSnapshot(adegaDocRef, (doc) => {
-            console.log("Dados recebidos do Firebase: ", doc.data());
-            // Se o documento existir e tiver a propriedade 'estoque', atualiza o estado local
             if (doc.exists() && doc.data().estoque) {
                 currentWines = doc.data().estoque;
             } else {
-                // Se o documento não existir, o estoque está vazio
                 currentWines = [];
             }
             renderWineList(currentWines);
@@ -246,7 +324,6 @@
 
         async function saveWinesToFirebase(wines) {
             try {
-                // Salva o objeto inteiro contendo o array 'estoque' no documento
                 await setDoc(adegaDocRef, { estoque: wines });
             } catch (error) {
                 console.error("Erro ao salvar vinhos no Firebase: ", error);
@@ -282,15 +359,15 @@
 
             wines.sort((a, b) => a.wineName.localeCompare(b.wineName)).forEach(wine => {
                 const wineElement = document.createElement('div');
-                wineElement.className = 'bg-stone-900 bg-opacity-60 p-4 rounded-xl flex justify-between items-center transition-all duration-300 hover:bg-opacity-80 hover:scale-[1.02] cursor-pointer shadow-md border-l-4 border-amber-400';
+                wineElement.className = 'bg-stone-900 bg-opacity-60 p-4 rounded-xl flex justify-between items-center transition-all duration-300 hover:bg-opacity-80 hover:scale-[1.02] cursor-pointer shadow-md border-l-4 border-red-700';
                 wineElement.onclick = () => showStockWineDetails(wine);
                 wineElement.innerHTML = `
                     <div>
                         <p class="font-bold text-lg text-white">${wine.wineName} ${wine.year ? `<span class="text-sm text-gray-400">(${wine.year})</span>` : ''}</p>
-                        <p class="text-sm text-amber-300">${wine.grape} - ${wine.region}</p>
+                        <p class="text-sm text-red-300">${wine.grape} - ${wine.region}</p>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="bg-rose-800 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full">${wine.quantity}</span>
+                        <span class="bg-red-800 text-white text-sm font-bold w-8 h-8 flex items-center justify-center rounded-full">${wine.quantity}</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
                     </div>
                 `;
@@ -329,14 +406,14 @@
         });
 
         function addWine(wineInfo) {
-            const wines = [...currentWines]; // Cria uma cópia para não modificar o estado diretamente
+            const wines = [...currentWines];
             const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
             if (existingWineIndex > -1) {
                 wines[existingWineIndex].quantity++;
             } else {
                 wines.push({ ...wineInfo, quantity: 1, id: Date.now() });
             }
-            saveWinesToFirebase(wines); // Salva a lista atualizada no Firebase
+            saveWinesToFirebase(wines);
             closeModal();
         }
 
@@ -383,13 +460,13 @@
             modalContent.innerHTML = `
                 <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
                 <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
-                <p class="text-amber-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
+                <p class="text-red-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
                 <div class="space-y-4">
                     <div class="bg-stone-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Sobre este vinho</h3><p class="text-gray-300">${wineInfo.description}</p></div>
                     <div class="bg-stone-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Harmonização Sugerida</h3><ul class="list-disc list-inside text-gray-300 space-y-1">${(wineInfo.foodPairings || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
                 </div>
                 <div class="mt-6 flex flex-col gap-3">
-                    <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-rose-800 hover:bg-rose-700 text-white ${btnClass}">
+                    <button onclick='addWine(${JSON.stringify(wineInfo)})' class="bg-red-800 hover:bg-red-700 text-white ${btnClass}">
                         ${isInStock ? 'Adicionar +1 Garrafa' : 'Adicionar ao Estoque'}
                     </button>
                     ${isInStock ? `<button onclick='drinkWine(${JSON.stringify(wineInfo)})' class="bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>` : ''}
@@ -402,7 +479,7 @@
             modalContent.innerHTML = `
                 <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white">&times;</button>
                 <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
-                <p class="text-amber-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
+                <p class="text-red-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
                 <p class="text-gray-300 mb-6 text-center bg-stone-900 bg-opacity-50 p-3 rounded-lg">Você tem <strong>${wineInfo.quantity}</strong> garrafa(s) em estoque.</p>
                 <div class="flex flex-col gap-3">
                     <button onclick='generateTechSheet(${JSON.stringify(wineInfo)})' class="bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">✨ Gerar Ficha Técnica</button>
@@ -449,8 +526,8 @@
                 </div>
                 <div class="pt-3 border-t border-gray-700">
                     <form id="chat-form" class="flex gap-2">
-                        <input type="text" id="chat-input" class="flex-1 bg-stone-800 border border-gray-600 rounded-full px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-amber-500" placeholder="Pergunte sobre vinhos...">
-                        <button type="submit" class="bg-rose-800 hover:bg-rose-700 text-white font-bold p-3 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg></button>
+                        <input type="text" id="chat-input" class="flex-1 bg-stone-800 border border-gray-600 rounded-full px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Pergunte sobre vinhos...">
+                        <button type="submit" class="bg-red-800 hover:bg-red-700 text-white font-bold p-3 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L._767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg></button>
                     </form>
                 </div>`;
             openModal();
@@ -477,7 +554,7 @@
         function addChatMessage(text, role) {
             const chatMessages = document.getElementById('chat-messages');
             const messageEl = document.createElement('div');
-            const bubbleClass = role === 'user' ? 'bg-gradient-to-br from-rose-700 to-amber-600 self-end' : 'bg-stone-700 self-start';
+            const bubbleClass = role === 'user' ? 'bg-red-800 self-end' : 'bg-stone-700 self-start';
             messageEl.className = `chat-bubble rounded-xl max-w-[85%] p-3 text-white ${bubbleClass}`;
             messageEl.textContent = text;
             chatMessages.appendChild(messageEl);
@@ -485,6 +562,9 @@
         }
 
         // --- EVENT LISTENERS ---
+        apiMonitor.addEventListener('click', () => {
+            apiMonitor.classList.toggle('is-expanded');
+        });
         photoInput.addEventListener('change', handleImageUpload);
         askSommelierBtn.addEventListener('click', openChatModal);
         
