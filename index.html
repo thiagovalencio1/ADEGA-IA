@@ -28,7 +28,7 @@
             position: fixed;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1598494834123-a256900bde35?q=80&w=1974&auto-format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1598494834123-a256900bde35?q=80&w=1974&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             filter: blur(4px) brightness(0.4);
@@ -55,63 +55,32 @@
         ::-webkit-scrollbar-thumb:hover { background: rgba(127, 29, 29, 0.8); }
 
         /* Estilos do Monitor de API Interativo */
-        #api-monitor {
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            cursor: pointer;
+        .monitor-wrapper {
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        #api-monitor:not(.is-expanded) {
-            width: 64px; /* 16rem */
-            height: 64px; /* 16rem */
-            border-radius: 9999px; /* rounded-full */
-            padding: 0;
+        .monitor-wrapper:not(.is-expanded) {
+            width: 48px; /* w-12 */
         }
-        #api-monitor.is-expanded {
+        .monitor-wrapper.is-expanded {
             width: 192px; /* w-48 */
-            height: auto;
-            border-radius: 0.75rem; /* rounded-xl */
         }
-        .monitor-content {
-            transition: opacity 0.3s ease-in-out;
+        .expanded-view {
+            transition: opacity 0.3s ease-in-out 0.1s;
         }
-        #api-monitor:not(.is-expanded) .expanded-view {
+        .monitor-wrapper:not(.is-expanded) .expanded-view {
             opacity: 0;
-            max-height: 0;
             visibility: hidden;
         }
-        #api-monitor.is-expanded .expanded-view {
-            opacity: 1;
-            max-height: 500px; /* Altura suficiente para o conteúdo */
-            visibility: visible;
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
         }
-        #api-monitor:not(.is-expanded) .minimized-view {
-            opacity: 1;
-            visibility: visible;
-        }
-        #api-monitor.is-expanded .minimized-view {
-            opacity: 0;
-            max-height: 0;
-            visibility: hidden;
+        .light-pulse {
+            animation: pulse-green 2s infinite;
         }
     </style>
 </head>
 <body class="antialiased">
-
-    <!-- Monitor de Status Interativo -->
-    <div id="api-monitor" class="fixed bottom-6 left-6 z-30 glass-panel shadow-lg">
-        <!-- Visão Minimizada (Dial) -->
-        <div class="minimized-view absolute inset-0 flex items-center justify-center">
-            <div id="minimized-status-light" class="w-6 h-6 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
-                <!-- Spinner aparecerá aqui -->
-            </div>
-        </div>
-        <!-- Visão Expandida (Painel) -->
-        <div class="expanded-view p-3 text-xs">
-            <h3 class="font-bold text-gray-300 text-center border-b border-gray-700 pb-1 mb-2">Monitor do Carrossel</h3>
-            <div id="api-key-list" class="space-y-1.5">
-                <!-- A lista de chaves será gerada aqui pelo JS -->
-            </div>
-        </div>
-    </div>
 
     <!-- Container Principal com Flexbox -->
     <div id="app" class="container mx-auto max-w-3xl p-4 flex flex-col min-h-screen">
@@ -137,8 +106,26 @@
         </footer>
     </div>
 
-    <!-- Botões de Ação Flutuantes -->
+    <!-- Elementos Flutuantes -->
+    <div class="fixed bottom-6 left-6 z-30">
+        <!-- Monitor de Status Interativo -->
+        <div id="api-monitor" class="monitor-wrapper glass-panel shadow-lg rounded-full flex items-center justify-center h-12 cursor-pointer">
+            <!-- Ponto de Luz (Minimizado) -->
+            <div id="minimized-status-light" class="w-4 h-4 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
+                <!-- Spinner aparecerá aqui -->
+            </div>
+            <!-- Painel (Expandido) -->
+            <div class="expanded-view opacity-0 absolute right-0 w-48 p-3 text-xs">
+                <h3 class="font-bold text-gray-300 text-center border-b border-gray-700 pb-1 mb-2">Monitor de IA</h3>
+                <div id="api-key-list" class="space-y-1.5">
+                    <!-- A lista de chaves será gerada aqui pelo JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="fixed bottom-6 right-6 z-20 flex flex-col gap-4">
+        <!-- Botões de Ação -->
         <button id="ask-sommelier-btn" title="Converse com o Sommelier" class="bg-red-900 hover:bg-red-800 text-white w-16 h-16 rounded-full flex items-center justify-center cursor-pointer shadow-lg transform hover:scale-110 transition-transform duration-300">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
         </button>
@@ -241,12 +228,14 @@
 
                 // Atualiza a visão minimizada
                 this.minimizedLight.innerHTML = '';
-                this.minimizedLight.className = 'w-6 h-6 rounded-full transition-colors duration-500 flex items-center justify-center';
+                this.minimizedLight.className = 'w-4 h-4 rounded-full transition-colors duration-500 flex items-center justify-center';
+                this.minimizedLight.classList.remove('light-pulse');
+
                 if (status === 'processing') {
                     this.minimizedLight.classList.add('bg-amber-500');
-                    this.minimizedLight.innerHTML = `<div class="w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></div>`;
+                    this.minimizedLight.innerHTML = `<div class="w-3 h-3 border-2 border-t-transparent border-white rounded-full animate-spin"></div>`;
                 } else {
-                    this.minimizedLight.classList.add('bg-green-500');
+                    this.minimizedLight.classList.add('bg-green-500', 'light-pulse');
                 }
             }
 
