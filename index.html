@@ -99,7 +99,8 @@
         <!-- Assinatura do Projeto no Rodapé -->
         <footer class="text-center mt-auto py-6 text-gray-400 flex-shrink-0">
             <p class="font-cursive text-3xl text-red-200">Thiago Ventura Valencio</p>
-            <p class="text-sm -mt-2">Projeto/Desenvolvimento e teimosa</p>
+            <!-- CORREÇÃO: "teimosa" para "teimosia" -->
+            <p class="text-sm -mt-2">Projeto/Desenvolvimento e teimosia</p>
             <div class="mt-4 text-xs text-gray-500">
                 <p>Codificação: Gemini / ChatGPT / Qwen</p>
             </div>
@@ -109,14 +110,12 @@
     <!-- Elementos Flutuantes -->
     <div class="fixed bottom-6 left-6 z-30">
         <!-- Monitor de Status Interativo -->
-        <!-- CORREÇÃO: Adicionado 'relative' para posicionar o painel expandido corretamente -->
         <div id="api-monitor" class="monitor-wrapper glass-panel shadow-lg rounded-full flex items-center justify-center h-12 cursor-pointer relative">
             <!-- Ponto de Luz (Minimizado) -->
             <div id="minimized-status-light" class="w-4 h-4 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
                 <!-- Spinner aparecerá aqui -->
             </div>
             <!-- Painel (Expandido) -->
-            <!-- CORREÇÃO: Removido 'opacity-0' para que o CSS possa controlar a visibilidade -->
             <div class="expanded-view absolute right-0 w-48 p-3 text-xs">
                 <h3 class="font-bold text-gray-300 text-center border-b border-gray-700 pb-1 mb-2">Monitor de IA</h3>
                 <div id="api-key-list" class="space-y-1.5">
@@ -190,7 +189,6 @@
                     const monitorElement = document.createElement('div');
                     monitorElement.className = 'flex items-center justify-between text-[10px]';
                     monitorElement.innerHTML = `
-                        <!-- CORREÇÃO: Alterado para mostrar Chave #1, #2, etc. -->
                         <span class="font-mono text-gray-400">Chave #${index + 1}</span>
                         <div class="flex items-center gap-1.5">
                             <span class="status-text font-medium"></span>
@@ -223,7 +221,6 @@
                             light.classList.add('bg-green-500');
                         }
                     } else {
-                        // CORREÇÃO: Alterado de 'STANDBY' para 'RESERVA'
                         text.textContent = 'RESERVA';
                         text.className = 'status-text font-medium text-gray-500';
                         light.classList.add('bg-gray-600');
@@ -346,17 +343,22 @@
         // LÓGICA DA APLICAÇÃO (UI, Eventos, etc.)
         // ===================================================================================
 
+        // NOVA FUNÇÃO: Cria uma "impressão digital" única para cada vinho
+        function createWineFingerprint(wineInfo) {
+            const name = (wineInfo.wineName || '').trim().toLowerCase();
+            const grape = (wineInfo.grape || 'desconhecida').trim().toLowerCase();
+            const year = wineInfo.year || 0;
+            return `${name}-${grape}-${year}`;
+        }
+
         function renderWineList(wines) {
             wineList.innerHTML = '';
             emptyMessage.classList.toggle('hidden', wines.length > 0);
 
-            wines.sort((a, b) => a.wineName.localeCompare(b.wineName)).forEach(wine => {
+            wines.sort((a, b) => (a.wineName || '').localeCompare(b.wineName || '')).forEach(wine => {
                 const wineElement = document.createElement('div');
                 wineElement.className = 'bg-stone-900 bg-opacity-60 p-4 rounded-xl flex justify-between items-center transition-all duration-300 hover:bg-opacity-80 hover:scale-[1.02] cursor-pointer shadow-md border-l-4 border-red-700';
-                
-                // CORREÇÃO: Adiciona o evento de clique de forma segura via JS
                 wineElement.onclick = () => showStockWineDetails(wine);
-
                 wineElement.innerHTML = `
                     <div>
                         <p class="font-bold text-lg text-white">${wine.wineName || 'Nome Desconhecido'} ${wine.year ? `<span class="text-sm text-gray-400">(${wine.year})</span>` : ''}</p>
@@ -403,7 +405,9 @@
 
         function addWine(wineInfo) {
             const wines = [...currentWines];
-            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            const newWineFingerprint = createWineFingerprint(wineInfo);
+            const existingWineIndex = wines.findIndex(w => createWineFingerprint(w) === newWineFingerprint);
+            
             if (existingWineIndex > -1) {
                 wines[existingWineIndex].quantity++;
             } else {
@@ -415,7 +419,9 @@
 
         function drinkWine(wineInfo) {
             let wines = [...currentWines];
-            const existingWineIndex = wines.findIndex(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            const wineToDrinkFingerprint = createWineFingerprint(wineInfo);
+            const existingWineIndex = wines.findIndex(w => createWineFingerprint(w) === wineToDrinkFingerprint);
+
             if (existingWineIndex > -1) {
                 wines[existingWineIndex].quantity--;
                 if (wines[existingWineIndex].quantity <= 0) {
@@ -442,7 +448,7 @@
             setTimeout(() => {
                 modalBackdrop.classList.add('hidden');
                 modalContainer.classList.add('hidden');
-                modalContent.innerHTML = ''; // Limpa o conteúdo para evitar problemas
+                modalContent.innerHTML = ''; // Limpa o conteúdo para evitar eventos duplicados
             }, 200);
         }
         
@@ -450,12 +456,13 @@
         function hideLoadingModal() { loadingModal.classList.add('hidden'); }
 
         function showScannedWineModal(wineInfo) {
-            const existingWine = currentWines.find(w => w.wineName.toLowerCase() === wineInfo.wineName.toLowerCase() && w.year === wineInfo.year);
+            const newWineFingerprint = createWineFingerprint(wineInfo);
+            const existingWine = currentWines.find(w => createWineFingerprint(w) === newWineFingerprint);
             const isInStock = !!existingWine;
             const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
             
             modalContent.innerHTML = `
-                <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName || 'Nome Desconhecido'} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
                 <p class="text-red-300 mb-4">${wineInfo.grape || 'Uva Desconhecida'} - ${wineInfo.region || 'Região Desconhecida'}</p>
                 <div class="space-y-4">
@@ -463,51 +470,49 @@
                     <div class="bg-stone-900 bg-opacity-50 p-4 rounded-lg"><h3 class="font-bold text-lg mb-2 text-white">Harmonização Sugerida</h3><ul class="list-disc list-inside text-gray-300 space-y-1">${(wineInfo.foodPairings || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
                 </div>
                 <div class="mt-6 flex flex-col gap-3">
-                    <button id="add-wine-btn" class="bg-red-800 hover:bg-red-700 text-white ${btnClass}">
+                    <button class="add-wine-btn bg-red-800 hover:bg-red-700 text-white ${btnClass}">
                         ${isInStock ? 'Adicionar +1 Garrafa' : 'Adicionar ao Estoque'}
                     </button>
-                    ${isInStock ? `<button id="drink-wine-btn" class="bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>` : ''}
+                    ${isInStock ? `<button class="drink-wine-btn bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>` : ''}
                 </div>`;
             
-            // CORREÇÃO: Adiciona eventos de clique de forma segura via JS para evitar erros com aspas
-            document.getElementById('close-modal-btn').onclick = closeModal;
-            document.getElementById('add-wine-btn').onclick = () => addWine(wineInfo);
-            if (isInStock) {
-                document.getElementById('drink-wine-btn').onclick = () => drinkWine(wineInfo);
-            }
-            
             openModal();
+            
+            modalContent.querySelector('.close-modal-btn').onclick = closeModal;
+            modalContent.querySelector('.add-wine-btn').onclick = () => addWine(wineInfo);
+            if (isInStock) {
+                modalContent.querySelector('.drink-wine-btn').onclick = () => drinkWine(wineInfo);
+            }
         }
 
         function showStockWineDetails(wineInfo) {
             const btnClass = "font-bold py-3 px-4 rounded-lg w-full transition-transform transform hover:scale-105";
             modalContent.innerHTML = `
-                <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 <h2 class="font-serif text-3xl text-white mb-2">${wineInfo.wineName} ${wineInfo.year ? `(${wineInfo.year})` : ''}</h2>
                 <p class="text-red-300 mb-4">${wineInfo.grape} - ${wineInfo.region}</p>
                 <p class="text-gray-300 mb-6 text-center bg-stone-900 bg-opacity-50 p-3 rounded-lg">Você tem <strong>${wineInfo.quantity}</strong> garrafa(s) em estoque.</p>
                 <div class="flex flex-col gap-3">
-                    <button id="tech-sheet-btn" class="bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">✨ Gerar Ficha Técnica</button>
-                    <button id="add-wine-btn" class="bg-blue-600 hover:bg-blue-700 text-white ${btnClass}">Adicionar +1 Garrafa</button>
-                    <button id="drink-wine-btn" class="bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>
+                    <button class="tech-sheet-btn bg-gray-600 hover:bg-gray-500 text-white ${btnClass}">✨ Gerar Ficha Técnica</button>
+                    <button class="add-wine-btn bg-blue-600 hover:bg-blue-700 text-white ${btnClass}">Adicionar +1 Garrafa</button>
+                    <button class="drink-wine-btn bg-green-700 hover:bg-green-600 text-white ${btnClass}">Beber 1 Garrafa</button>
                 </div>`;
 
-            // CORREÇÃO: Adiciona eventos de clique de forma segura via JS
-            document.getElementById('close-modal-btn').onclick = closeModal;
-            document.getElementById('tech-sheet-btn').onclick = () => generateTechSheet(wineInfo);
-            document.getElementById('add-wine-btn').onclick = () => addWine(wineInfo);
-            document.getElementById('drink-wine-btn').onclick = () => drinkWine(wineInfo);
-
             openModal();
+            
+            modalContent.querySelector('.close-modal-btn').onclick = closeModal;
+            modalContent.querySelector('.tech-sheet-btn').onclick = () => generateTechSheet(wineInfo);
+            modalContent.querySelector('.add-wine-btn').onclick = () => addWine(wineInfo);
+            modalContent.querySelector('.drink-wine-btn').onclick = () => drinkWine(wineInfo);
         }
 
         function showErrorModal(message) {
             modalContent.innerHTML = `
-                <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 <h2 class="font-serif text-3xl text-red-400 mb-2">Ocorreu um Erro</h2>
                 <p class="text-gray-300">${message}</p>`;
-            document.getElementById('close-modal-btn').onclick = closeModal;
             openModal();
+            modalContent.querySelector('.close-modal-btn').onclick = closeModal;
         }
 
         async function generateTechSheet(wineInfo) {
@@ -516,10 +521,10 @@
                 const prompt = `Gere uma "ficha técnica" detalhada para o vinho "${wineInfo.wineName} ${wineInfo.year || ''}" da região "${wineInfo.region}" com uva "${wineInfo.grape}". Formate com emojis. Inclua: 🌡️ Temperatura Ideal, ⏳ Potencial de Guarda, 📝 Nota de Prova (visual, olfativo, gustativo), 🧐 Curiosidade, 🌟 Nota Estimada (0-100).`;
                 const techSheetText = await callGenerativeAI(prompt);
                 modalContent.innerHTML = `
-                    <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                    <button class="close-modal-btn absolute top-4 right-4 text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                     <h2 class="font-serif text-3xl text-white mb-4">✨ Ficha Técnica</h2>
                     <div class="text-gray-300 space-y-3 whitespace-pre-wrap">${techSheetText.replace(/\n/g, '<br>')}</div>`;
-                document.getElementById('close-modal-btn').onclick = closeModal;
+                modalContent.querySelector('.close-modal-btn').onclick = closeModal;
             } catch (error) {
                 console.error("Erro ao gerar ficha:", error);
                 showErrorModal(`Ocorreu um erro ao contatar a IA: ${error.message}`);
@@ -533,7 +538,7 @@
             modalContent.innerHTML = `
                 <div class="flex justify-between items-center pb-3 border-b border-gray-700">
                     <h2 class="font-serif text-2xl text-white">✨ Converse com o Sommelier</h2>
-                    <button id="close-modal-btn" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+                    <button class="close-modal-btn text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
                 </div>
                 <div id="chat-messages" class="flex-1 py-4 space-y-4 overflow-y-auto flex flex-col h-80 my-4">
                     ${chatHistory.map(msg => `<div class="chat-bubble ${msg.role === 'user' ? 'user-bubble' : 'ai-bubble'}">${msg.text}</div>`).join('')}
@@ -544,8 +549,9 @@
                         <button type="submit" class="bg-red-800 hover:bg-red-700 text-white font-bold p-3 rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083l6-15Zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471-.47 1.178Z"/></svg></button>
                     </form>
                 </div>`;
-            document.getElementById('close-modal-btn').onclick = closeModal;
             openModal();
+            
+            modalContent.querySelector('.close-modal-btn').onclick = closeModal;
             
             const chatForm = document.getElementById('chat-form');
             chatForm.onsubmit = async (e) => {
@@ -582,9 +588,6 @@
         });
         photoInput.addEventListener('change', handleImageUpload);
         askSommelierBtn.addEventListener('click', openChatModal);
-        
-        // CORREÇÃO: Removida a atribuição ao escopo global, pois não é mais necessária
-        // com a nova forma de adicionar eventos.
 
     </script>
 </body>
