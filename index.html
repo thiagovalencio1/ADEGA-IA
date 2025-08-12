@@ -65,11 +65,17 @@
             width: 192px; /* w-48 */
         }
         .expanded-view {
-            transition: opacity 0.3s ease-in-out 0.1s, visibility 0.3s ease-in-out 0.1s;
+            transition: opacity 0.3s ease-in-out 0.1s;
         }
         .monitor-wrapper:not(.is-expanded) .expanded-view {
             opacity: 0;
+            max-height: 0;
             visibility: hidden;
+        }
+        #api-monitor.is-expanded .expanded-view {
+            opacity: 1;
+            max-height: 500px; /* Altura suficiente para o conteúdo */
+            visibility: visible;
         }
         @keyframes pulse-green {
             0%, 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
@@ -99,7 +105,6 @@
         <!-- Assinatura do Projeto no Rodapé -->
         <footer class="text-center mt-auto py-6 text-gray-400 flex-shrink-0">
             <p class="font-cursive text-3xl text-red-200">Thiago Ventura Valencio</p>
-            <!-- CORREÇÃO: "teimosa" para "teimosia" -->
             <p class="text-sm -mt-2">Projeto/Desenvolvimento e teimosia</p>
             <div class="mt-4 text-xs text-gray-500">
                 <p>Codificação: Gemini / ChatGPT / Qwen</p>
@@ -110,13 +115,15 @@
     <!-- Elementos Flutuantes -->
     <div class="fixed bottom-6 left-6 z-30">
         <!-- Monitor de Status Interativo -->
-        <div id="api-monitor" class="monitor-wrapper glass-panel shadow-lg rounded-full flex items-center justify-center h-12 cursor-pointer relative">
-            <!-- Ponto de Luz (Minimizado) -->
-            <div id="minimized-status-light" class="w-4 h-4 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
-                <!-- Spinner aparecerá aqui -->
+        <div id="api-monitor" class="monitor-wrapper glass-panel shadow-lg rounded-full flex items-center justify-center h-12 cursor-pointer">
+            <!-- Visão Minimizada (Dial) -->
+            <div class="minimized-view flex items-center justify-center">
+                <div id="minimized-status-light" class="w-4 h-4 rounded-full bg-green-500 transition-colors duration-500 flex items-center justify-center">
+                    <!-- Spinner aparecerá aqui -->
+                </div>
             </div>
-            <!-- Painel (Expandido) -->
-            <div class="expanded-view absolute right-0 w-48 p-3 text-xs">
+            <!-- Visão Expandida (Painel) -->
+            <div class="expanded-view opacity-0 p-3 text-xs w-48">
                 <h3 class="font-bold text-gray-300 text-center border-b border-gray-700 pb-1 mb-2">Monitor de IA</h3>
                 <div id="api-key-list" class="space-y-1.5">
                     <!-- A lista de chaves será gerada aqui pelo JS -->
@@ -343,7 +350,6 @@
         // LÓGICA DA APLICAÇÃO (UI, Eventos, etc.)
         // ===================================================================================
 
-        // NOVA FUNÇÃO: Cria uma "impressão digital" única para cada vinho
         function createWineFingerprint(wineInfo) {
             const name = (wineInfo.wineName || '').trim().toLowerCase();
             const grape = (wineInfo.grape || 'desconhecida').trim().toLowerCase();
@@ -562,8 +568,18 @@
                 addChatMessage(userMessage, 'user');
                 chatInput.value = '';
                 try {
-                    const stock = currentWines.map(w => `${w.quantity}x ${w.wineName} ${w.year}`).join(', ');
-                    const prompt = `Contexto: O usuário possui os seguintes vinhos em estoque: [${stock || 'Nenhum'}]. Pergunta do usuário: "${userMessage}". Responda como um sommelier amigável e prestativo. Seja conciso.`;
+                    const stock = currentWines.map(w => `- ${w.quantity}x ${w.wineName || 'Vinho Desconhecido'} (${w.grape || 'Uva Desconhecida'}, ${w.year || 'S.A.'})`).join('\n');
+                    const prompt = `Você é um Master Sommelier da "Adega Inteligente". Sua principal função é a harmonização precisa.
+
+**DIRETIVA DE TRÊS ESTÁGIOS:**
+
+1.  **ANÁLISE DE ESTOQUE (PRIORIDADE MÁXIMA):** Primeiro, analise o prato do usuário ("${userMessage}") e compare-o com os vinhos que ele possui em estoque:\n${stock || 'Nenhum'}\nSe houver uma harmonização boa ou excelente, sua resposta DEVE começar com "Da sua adega, a melhor opção é..." e recomende o vinho, explicando o porquê da harmonização.
+
+2.  **RECOMENDAÇÃO DE COMPRA (PLANO B):** Se, e somente se, nenhum vinho do estoque for uma boa opção, sua resposta DEVE começar com "Para este prato, a harmonização ideal seria..." e sugira o tipo de vinho a ser comprado (uva, região, características).
+
+3.  **PROATIVIDADE CULINÁRIA (ENGAJAMENTO):** Se o usuário pedir uma receita, forneça uma. Caso contrário, sempre que apropriado, finalize suas respostas com uma pergunta aberta para engajar o usuário, como "Gostaria de uma sugestão de receita para acompanhar este prato?".
+
+**REQUISIÇÃO DO USUÁRIO:** "${userMessage}"`;
                     const aiResponse = await callGenerativeAI(prompt);
                     addChatMessage(aiResponse, 'ai');
                 } catch (error) {
