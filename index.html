@@ -101,6 +101,25 @@
             <p class="text-red-200 mt-3 text-lg">Eid Valencio</p>
         </header>
 
+        <!-- ======================================================================= -->
+        <!-- INÍCIO DA ADIÇÃO: PAINEL CONTADOR DE VINHOS -->
+        <!-- ======================================================================= -->
+        <div id="wine-counter-panel" class="glass-panel p-4 rounded-2xl shadow-lg mb-8 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="text-4xl">🍷</div>
+                <div>
+                    <h3 class="font-bold text-xl text-white">Total na Adega</h3>
+                    <p class="text-sm text-gray-400">Soma de todas as garrafas</p>
+                </div>
+            </div>
+            <div id="total-wine-count" class="font-serif text-6xl text-red-400 font-bold">
+                0
+            </div>
+        </div>
+        <!-- ======================================================================= -->
+        <!-- FIM DA ADIÇÃO -->
+        <!-- ======================================================================= -->
+
         <!-- Conteúdo Principal que cresce para preencher o espaço -->
         <main id="wine-list-container" class="glass-panel p-4 sm:p-6 rounded-2xl shadow-2xl flex-grow mb-8">
             <h2 class="text-2xl font-bold mb-4 border-b border-gray-700 pb-3 text-white">Meu Estoque de Vinhos</h2>
@@ -313,6 +332,8 @@
         const askSommelierBtn = document.getElementById('ask-sommelier-btn');
         const addWineActionBtn = document.getElementById('add-wine-action-btn');
         const apiMonitor = document.getElementById('api-monitor');
+        // ADIÇÃO: Selecionando o elemento do contador
+        const totalWineCountDisplay = document.getElementById('total-wine-count');
 
         // --- ESTADO GLOBAL DA APLICAÇÃO ---
         let currentWines = [];
@@ -371,6 +392,10 @@
         function renderWineList(wines) {
             wineList.innerHTML = '';
             emptyMessage.classList.toggle('hidden', wines.length > 0);
+
+            // ADIÇÃO: Lógica para calcular e exibir o total de garrafas
+            const totalQuantity = wines.reduce((sum, wine) => sum + wine.quantity, 0);
+            totalWineCountDisplay.textContent = totalQuantity;
 
             wines.sort((a, b) => (a.wineName || '').localeCompare(b.wineName || '')).forEach(wine => {
                 const wineElement = document.createElement('div');
